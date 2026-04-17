@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-header">
+    <div class="row-between">
+        <div>
+            <p class="kicker">Team</p>
+            <h1>{{ team.name }}</h1>
+            <p class="muted">{{ team.season }} · {{ team.division }} · {{ team.members|length }} members</p>
+            <p>{{ team.description }}</p>
+        </div>
+        {% if current_user and current_user not in team.members %}
+            <a class="button" href="{{ url_for('join_team', team_id=team.id) }}">Join Team</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="grid two">
+    <div class="card">
+        <h2 class="section-title">Members</h2>
+        {% for member in team.members %}
+            <div class="list-item">
+                {{ member.full_name }} <span class="muted">· {{ member.branch or 'Veteran' }}</span>
+            </div>
+        {% else %}
+            <p class="muted">No members assigned.</p>
+        {% endfor %}
+
+        <h2 class="section-title" style="margin-top: 18px;">Events</h2>
+        {% for event in events %}
+            <div class="list-item">
+                <strong><a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a></strong>
+                <div class="muted">{{ event.start_time.strftime('%b %d, %Y %I:%M %p') }}</div>
+            </div>
+        {% else %}
+            <p class="muted">No events for this team.</p>
+        {% endfor %}
+    </div>
+
+    <div class="card chat-card">
+        <h2 class="section-title">Team Chat</h2>
+        <div class="chat-box">
+            {% for message in messages %}
+                <div class="message">
+                    <div><strong>{{ message.author.full_name }}</strong> <span class="muted">{{ message.created_at.strftime('%b %d %I:%M %p') }}</span></div>
+                    <div>{{ message.content }}</div>
+                </div>
+            {% else %}
+                <p class="muted">No chat messages yet.</p>
+            {% endfor %}
+        </div>
+        <form method="post" action="{{ url_for('team_chat', team_id=team.id) }}" class="chat-form">
+            <textarea name="content" rows="3" placeholder="Message the team" required></textarea>
+            <button class="button" type="submit">Send</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
